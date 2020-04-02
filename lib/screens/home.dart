@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
+import 'package:time_spent/data/db/database.dart';
 
 import '../services/bloc/work_bloc.dart';
 import '../utils/datetime_ext.dart';
@@ -54,51 +55,7 @@ class _HomePageState extends State<HomePage> {
                     child: state is InProgress
                         ? WIPWidget(startTime: state.startTime)
                         : state is Done
-                            ? Column(
-                                children: [
-                                  Padding(
-                                    padding: const EdgeInsets.all(8.0),
-                                    child: Text('DONE !', style: textStyle),
-                                  ),
-                                  Container(
-                                    width:
-                                        MediaQuery.of(context).size.width / 1.5,
-                                    child: Column(
-                                      children: <Widget>[
-                                        Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceBetween,
-                                          children: <Widget>[
-                                            Text('Started at :'),
-                                            Text(DateFormat('HH:mm')
-                                                .format(state.rush.startDate)),
-                                          ],
-                                        ),
-                                        Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceBetween,
-                                          children: <Widget>[
-                                            Text('Ended at :'),
-                                            Text(DateFormat('HH:mm')
-                                                .format(state.rush.endDate)),
-                                          ],
-                                        ),
-                                        Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceBetween,
-                                          children: <Widget>[
-                                            Text('Total :'),
-                                            Text(state.rush.endDate
-                                                .difference(
-                                                    state.rush.startDate)
-                                                .pretty()),
-                                          ],
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ],
-                              )
+                            ? DoneWidget(rush: state.rush)
                             : Container(),
                   ),
                 ),
@@ -148,6 +105,55 @@ class _HomePageState extends State<HomePage> {
           },
         ),
       ),
+    );
+  }
+}
+
+class DoneWidget extends StatelessWidget {
+  const DoneWidget({
+    Key key,
+    this.rush,
+  }) : super(key: key);
+
+  final Rush rush;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Text('DONE !', style: textStyle),
+        ),
+        Container(
+          width: MediaQuery.of(context).size.width / 1.5,
+          child: Column(
+            children: <Widget>[
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: <Widget>[
+                  Text('Started at :'),
+                  Text(DateFormat('HH:mm').format(rush.startDate)),
+                ],
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: <Widget>[
+                  Text('Ended at :'),
+                  Text(DateFormat('HH:mm').format(rush.endDate)),
+                ],
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: <Widget>[
+                  Text('Total :'),
+                  Text(rush.endDate.difference(rush.startDate).pretty()),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 }
