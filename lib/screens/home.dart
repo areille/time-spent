@@ -10,6 +10,7 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   DateTime now;
+  bool showColon;
 
   @override
   void initState() {
@@ -18,6 +19,13 @@ class _HomePageState extends State<HomePage> {
       const Duration(seconds: 1),
       (_) => setState(() {
         now = DateTime.now();
+      }),
+    );
+    showColon = true;
+    Timer.periodic(
+      const Duration(milliseconds: 500),
+      (_) => setState(() {
+        showColon = !showColon;
       }),
     );
     super.initState();
@@ -31,7 +39,7 @@ class _HomePageState extends State<HomePage> {
           gradient: LinearGradient(
             begin: Alignment.topRight,
             end: Alignment.bottomLeft,
-            colors: [Colors.blueGrey[300], Colors.blueGrey],
+            colors: [Colors.blue, Colors.red],
           ),
         ),
         child: Column(
@@ -40,7 +48,7 @@ class _HomePageState extends State<HomePage> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text(DateFormat("HH:mm").format(now)),
+                  Text(DateFormat('HH${showColon ? ':' : ' '}mm').format(now)),
                   Text(DateFormat("dd/MM/yyyy").format(now)),
                 ],
               ),
