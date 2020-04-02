@@ -31,6 +31,9 @@ class WorkBloc extends Bloc<WorkEvent, WorkState> {
       await rushesDao.deleteRush(event.id);
       yield Ready();
     }
+    if (event is Reset) {
+      yield Ready();
+    }
   }
 
   @override
@@ -66,6 +69,11 @@ class Deleted extends WorkEvent {
 
   @override
   List<Object> get props => [id];
+}
+
+class Reset extends WorkEvent {
+  @override
+  List<Object> get props => [];
 }
 
 // STATES

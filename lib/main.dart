@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-// import 'package:flutter/rendering.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
 
@@ -25,12 +25,19 @@ void main() {
 }
 
 class App extends StatelessWidget {
+  static const style = TextStyle(
+    fontWeight: FontWeight.bold,
+    fontSize: 24,
+    fontStyle: FontStyle.italic,
+    color: Colors.white,
+  );
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Time Spent',
       theme: ThemeData(
         primarySwatch: Colors.blueGrey,
+        textTheme: TextTheme(body1: style),
       ),
       home: HomePage(),
     );

@@ -2,9 +2,11 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:intl/intl.dart';
 
 import '../services/bloc/work_bloc.dart';
 import '../utils/datetime_ext.dart';
+import '../utils/duration_ext.dart';
 import '../widgets/clock.dart';
 
 const kAnimationDuration = const Duration(milliseconds: 400);
@@ -21,9 +23,6 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  Widget scaleTransition(Widget widget, Animation<double> anim) =>
-      ScaleTransition(child: widget, scale: anim);
-
   @override
   Widget build(BuildContext context) {
     return Material(
@@ -37,6 +36,7 @@ class _HomePageState extends State<HomePage> {
         ),
         child: BlocBuilder<WorkBloc, WorkState>(
           builder: (context, state) {
+            final thirdHeight = MediaQuery.of(context).size.height / 3;
             return Column(
               children: [
                 SizedBox(height: 24),
@@ -45,64 +45,104 @@ class _HomePageState extends State<HomePage> {
                   curve: Curves.easeInOut,
                   height: state is Ready
                       ? MediaQuery.of(context).size.height / 2
-                      : MediaQuery.of(context).size.height / 3,
+                      : thirdHeight,
                   child: ClockWidget(),
                 ),
-                AnimatedSwitcher(
-                  duration: kAnimationDuration,
-                  transitionBuilder: scaleTransition,
-                  child: Builder(
-                    builder: (_) {
-                      if (state is InProgress) {
-                        return WIPWidget(startTime: state.startTime);
-                      }
-                      return Container();
-                    },
+                Expanded(
+                  child: AnimatedSwitcher(
+                    duration: kAnimationDuration,
+                    child: state is InProgress
+                        ? WIPWidget(startTime: state.startTime)
+                        : state is Done
+                            ? Column(
+                                children: [
+                                  Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: Text('DONE !', style: textStyle),
+                                  ),
+                                  Container(
+                                    width:
+                                        MediaQuery.of(context).size.width / 1.5,
+                                    child: Column(
+                                      children: <Widget>[
+                                        Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          children: <Widget>[
+                                            Text('Started at :'),
+                                            Text(DateFormat('HH:mm')
+                                                .format(state.rush.startDate)),
+                                          ],
+                                        ),
+                                        Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          children: <Widget>[
+                                            Text('Ended at :'),
+                                            Text(DateFormat('HH:mm')
+                                                .format(state.rush.endDate)),
+                                          ],
+                                        ),
+                                        Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          children: <Widget>[
+                                            Text('Total :'),
+                                            Text(state.rush.endDate
+                                                .difference(
+                                                    state.rush.startDate)
+                                                .pretty()),
+                                          ],
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              )
+                            : Container(),
                   ),
                 ),
-                Expanded(
+                Container(
+                  height: thirdHeight,
                   child: Center(
-                    child: RaisedButton(
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(
-                          vertical: 12,
-                          horizontal: 4,
-                        ),
-                        child: AnimatedSwitcher(
-                          duration: kAnimationDuration,
-                          transitionBuilder: scaleTransition,
-                          child: Builder(
-                            builder: (_) {
-                              if (state is Ready) return StartWorkingText();
-                              if (state is InProgress)
-                                return Text('STOP WORKING', style: textStyle);
-                              return Container();
-                            },
+                    child: AnimatedSwitcher(
+                      duration: kAnimationDuration,
+                      child: RaisedButton(
+                        key: ValueKey(state),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(
+                            vertical: 12,
+                            horizontal: 4,
                           ),
+                          child: state is Ready
+                              ? StartWorkingText()
+                              : state is InProgress
+                                  ? Text('STOP WORKING', style: textStyle)
+                                  : state is Done
+                                      ? Text('BACK HOME', style: textStyle)
+                                      : Container(),
                         ),
+                        onPressed: () {
+                          if (state is Ready)
+                            BlocProvider.of<WorkBloc>(context).add(
+                              Started(DateTime.now()),
+                            );
+                          if (state is InProgress)
+                            BlocProvider.of<WorkBloc>(context).add(
+                              Stopped(DateTime.now()),
+                            );
+                          if (state is Done)
+                            BlocProvider.of<WorkBloc>(context).add(Reset());
+                        },
+                        color: Colors.indigo[400],
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                        splashColor: Colors.grey[400].withOpacity(0.5),
                       ),
-                      onPressed: () {
-                        if (state is Ready)
-                          BlocProvider.of<WorkBloc>(context).add(
-                            Started(DateTime.now()),
-                          );
-                        if (state is InProgress)
-                          BlocProvider.of<WorkBloc>(context).add(
-                            Stopped(DateTime.now()),
-                          );
-                      },
-                      color: Colors.indigo[400],
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(6),
-                      ),
-                      splashColor: Colors.grey[400].withOpacity(0.5),
                     ),
                   ),
                 ),
-                AnimatedContainer(
-                  duration: kAnimationDuration,
-                  height: state is Ready ? 24 : 0,
-                )
               ],
             );
           },
@@ -148,22 +188,19 @@ class _WIPWidgetState extends State<WIPWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      height: MediaQuery.of(context).size.height / 3,
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: <Widget>[
-          Text(
-            'Work in progress...',
-            style: textStyle,
-          ),
-          SizedBox(height: 8),
-          Text(
-            'Started ${widget.startTime.timeAgo()}',
-            style: textStyle.copyWith(fontSize: 18),
-          )
-        ],
-      ),
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: <Widget>[
+        Text(
+          'Currently working\n (theoretically...)',
+          style: textStyle,
+        ),
+        SizedBox(height: 8),
+        Text(
+          'Started ${widget.startTime.timeAgo()}',
+          style: textStyle.copyWith(fontSize: 18),
+        )
+      ],
     );
   }
 }
