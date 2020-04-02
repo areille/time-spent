@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -6,6 +8,12 @@ import '../utils/datetime_ext.dart';
 import '../widgets/clock.dart';
 
 const kAnimationDuration = const Duration(milliseconds: 400);
+const textStyle = TextStyle(
+  fontWeight: FontWeight.bold,
+  fontSize: 24,
+  fontStyle: FontStyle.italic,
+  color: Colors.white,
+);
 
 class HomePage extends StatefulWidget {
   @override
@@ -13,12 +21,9 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  static const textStyle = TextStyle(
-    fontWeight: FontWeight.bold,
-    fontSize: 24,
-    fontStyle: FontStyle.italic,
-    color: Colors.white,
-  );
+  Widget scaleTransition(Widget widget, Animation<double> anim) =>
+      ScaleTransition(child: widget, scale: anim);
+
   @override
   Widget build(BuildContext context) {
     return Material(
@@ -43,30 +48,17 @@ class _HomePageState extends State<HomePage> {
                       : MediaQuery.of(context).size.height / 3,
                   child: ClockWidget(),
                 ),
-                AnimatedCrossFade(
+                AnimatedSwitcher(
                   duration: kAnimationDuration,
-                  firstChild: Container(),
-                  secondChild: Container(
-                    height: MediaQuery.of(context).size.height / 3,
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: <Widget>[
-                        Text(
-                          'Work in progress...',
-                          style: textStyle,
-                        ),
-                        SizedBox(height: 8),
-                        if (state is InProgress)
-                          Text(
-                            'Started ${state.startTime.timeAgo()}',
-                            style: textStyle.copyWith(fontSize: 18),
-                          )
-                      ],
-                    ),
+                  transitionBuilder: scaleTransition,
+                  child: Builder(
+                    builder: (_) {
+                      if (state is InProgress) {
+                        return WIPWidget(startTime: state.startTime);
+                      }
+                      return Container();
+                    },
                   ),
-                  crossFadeState: state is InProgress
-                      ? CrossFadeState.showSecond
-                      : CrossFadeState.showFirst,
                 ),
                 Expanded(
                   child: Center(
@@ -76,13 +68,17 @@ class _HomePageState extends State<HomePage> {
                           vertical: 12,
                           horizontal: 4,
                         ),
-                        child: AnimatedCrossFade(
+                        child: AnimatedSwitcher(
                           duration: kAnimationDuration,
-                          firstChild: StartWorkingText(textStyle: textStyle),
-                          secondChild: Text('STOP WORKING', style: textStyle),
-                          crossFadeState: state is Ready
-                              ? CrossFadeState.showFirst
-                              : CrossFadeState.showSecond,
+                          transitionBuilder: scaleTransition,
+                          child: Builder(
+                            builder: (_) {
+                              if (state is Ready) return StartWorkingText();
+                              if (state is InProgress)
+                                return Text('STOP WORKING', style: textStyle);
+                              return Container();
+                            },
+                          ),
                         ),
                       ),
                       onPressed: () {
@@ -116,13 +112,66 @@ class _HomePageState extends State<HomePage> {
   }
 }
 
+class WIPWidget extends StatefulWidget {
+  const WIPWidget({
+    Key key,
+    @required this.startTime,
+  }) : super(key: key);
+
+  final DateTime startTime;
+
+  @override
+  _WIPWidgetState createState() => _WIPWidgetState();
+}
+
+class _WIPWidgetState extends State<WIPWidget> {
+  Timer rebuildTimer;
+  String timeAgo;
+
+  @override
+  void dispose() {
+    rebuildTimer.cancel();
+    super.dispose();
+  }
+
+  @override
+  void initState() {
+    timeAgo = widget.startTime.timeAgo();
+    rebuildTimer = Timer.periodic(
+      const Duration(seconds: 1),
+      (_) => setState(() {
+        timeAgo = widget.startTime.timeAgo();
+      }),
+    );
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: MediaQuery.of(context).size.height / 3,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: <Widget>[
+          Text(
+            'Work in progress...',
+            style: textStyle,
+          ),
+          SizedBox(height: 8),
+          Text(
+            'Started ${widget.startTime.timeAgo()}',
+            style: textStyle.copyWith(fontSize: 18),
+          )
+        ],
+      ),
+    );
+  }
+}
+
 class StartWorkingText extends StatelessWidget {
   const StartWorkingText({
     Key key,
-    @required this.textStyle,
   }) : super(key: key);
-
-  final TextStyle textStyle;
 
   @override
   Widget build(BuildContext context) {

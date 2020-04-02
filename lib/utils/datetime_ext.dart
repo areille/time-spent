@@ -16,7 +16,7 @@ extension DateTimeExt on DateTime {
 
     String result;
     if (seconds < 45)
-      result = 'less than one minute ago';
+      result = 'less than a minute ago';
     else if (seconds < 90)
       result = 'one minute ago';
     else if (minutes < 45)
