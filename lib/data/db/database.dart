@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:moor/moor.dart';
 import 'package:moor_ffi/moor_ffi.dart';
 import 'package:path/path.dart';
+import 'package:path_provider/path_provider.dart';
 
 part 'database.g.dart';
 
@@ -27,8 +28,6 @@ LazyDatabase get _openConnection {
     return VmDatabase(file);
   });
 }
-
-getApplicationDocumentsDirectory() {}
 
 @UseMoor(tables: [Rushes, Projects])
 class Database extends _$Database {
