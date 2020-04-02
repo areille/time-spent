@@ -9,6 +9,7 @@ import '../services/bloc/work_bloc.dart';
 import '../utils/datetime_ext.dart';
 import '../utils/duration_ext.dart';
 import '../widgets/clock.dart';
+import 'list.dart';
 
 const kAnimationDuration = const Duration(milliseconds: 400);
 const textStyle = TextStyle(
@@ -38,67 +39,98 @@ class _HomePageState extends State<HomePage> {
         child: BlocBuilder<WorkBloc, WorkState>(
           builder: (context, state) {
             final thirdHeight = MediaQuery.of(context).size.height / 3;
-            return Column(
+            return Stack(
               children: [
-                SizedBox(height: 24),
-                AnimatedContainer(
-                  duration: kAnimationDuration,
-                  curve: Curves.easeInOut,
-                  height: state is Ready
-                      ? MediaQuery.of(context).size.height / 2
-                      : thirdHeight,
-                  child: ClockWidget(),
-                ),
-                Expanded(
-                  child: AnimatedSwitcher(
-                    duration: kAnimationDuration,
-                    child: state is InProgress
-                        ? WIPWidget(startTime: state.startTime)
-                        : state is Done
-                            ? DoneWidget(rush: state.rush)
-                            : Container(),
+                Positioned(
+                  child: RawMaterialButton(
+                    onPressed: () {
+                      Navigator.push(context,
+                          MaterialPageRoute(builder: (_) => ListPage()));
+                    },
+                    child: const Icon(Icons.list),
+                    shape: const CircleBorder(),
+                    fillColor: Colors.white,
+                    constraints:
+                        const BoxConstraints(minWidth: 36, minHeight: 36),
                   ),
+                  top: 28,
+                  left: 4,
                 ),
-                Container(
-                  height: thirdHeight,
-                  child: Center(
-                    child: AnimatedSwitcher(
+                Positioned(
+                  child: RawMaterialButton(
+                    onPressed: () {},
+                    child: const Icon(Icons.settings),
+                    shape: const CircleBorder(),
+                    fillColor: Colors.white,
+                    constraints:
+                        const BoxConstraints(minWidth: 36, minHeight: 36),
+                  ),
+                  top: 28,
+                  right: 4,
+                ),
+                Column(
+                  children: [
+                    SizedBox(height: 24),
+                    AnimatedContainer(
                       duration: kAnimationDuration,
-                      child: RaisedButton(
-                        key: ValueKey(state),
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(
-                            vertical: 12,
-                            horizontal: 4,
-                          ),
-                          child: state is Ready
-                              ? StartWorkingText()
-                              : state is InProgress
-                                  ? Text('STOP WORKING', style: textStyle)
-                                  : state is Done
-                                      ? Text('BACK HOME', style: textStyle)
-                                      : Container(),
-                        ),
-                        onPressed: () {
-                          if (state is Ready)
-                            BlocProvider.of<WorkBloc>(context).add(
-                              Started(DateTime.now()),
-                            );
-                          if (state is InProgress)
-                            BlocProvider.of<WorkBloc>(context).add(
-                              Stopped(DateTime.now()),
-                            );
-                          if (state is Done)
-                            BlocProvider.of<WorkBloc>(context).add(Reset());
-                        },
-                        color: Colors.indigo[400],
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(6),
-                        ),
-                        splashColor: Colors.grey[400].withOpacity(0.5),
+                      curve: Curves.easeInOut,
+                      height: state is Ready
+                          ? MediaQuery.of(context).size.height / 2
+                          : thirdHeight,
+                      child: ClockWidget(),
+                    ),
+                    Expanded(
+                      child: AnimatedSwitcher(
+                        duration: kAnimationDuration,
+                        child: state is InProgress
+                            ? WIPWidget(startTime: state.startTime)
+                            : state is Done
+                                ? DoneWidget(rush: state.rush)
+                                : Container(),
                       ),
                     ),
-                  ),
+                    Container(
+                      height: thirdHeight,
+                      child: Center(
+                        child: AnimatedSwitcher(
+                          duration: kAnimationDuration,
+                          child: RaisedButton(
+                            key: ValueKey(state),
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(
+                                vertical: 12,
+                                horizontal: 4,
+                              ),
+                              child: state is Ready
+                                  ? StartWorkingText()
+                                  : state is InProgress
+                                      ? Text('STOP WORKING', style: textStyle)
+                                      : state is Done
+                                          ? Text('BACK HOME', style: textStyle)
+                                          : Container(),
+                            ),
+                            onPressed: () {
+                              if (state is Ready)
+                                BlocProvider.of<WorkBloc>(context).add(
+                                  Started(DateTime.now()),
+                                );
+                              if (state is InProgress)
+                                BlocProvider.of<WorkBloc>(context).add(
+                                  Stopped(DateTime.now()),
+                                );
+                              if (state is Done)
+                                BlocProvider.of<WorkBloc>(context).add(Reset());
+                            },
+                            color: Colors.indigo[400],
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(6),
+                            ),
+                            splashColor: Colors.grey[400].withOpacity(0.5),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ],
             );

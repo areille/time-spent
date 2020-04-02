@@ -1,3 +1,4 @@
+import 'package:intl/intl.dart';
 import 'package:moor/moor.dart';
 
 import '../../data/db/database.dart';
@@ -14,5 +15,23 @@ class RushesDao extends DatabaseAccessor<Database> with _$RushesDaoMixin {
 
   Future<void> deleteRush(int rushId) async {
     return (delete(rushes)..where((r) => r.id.equals(rushId))).go();
+  }
+
+  Future<List<Rush>> get getRushes => select(rushes).get();
+
+  Future<Map<String, List<Rush>>> get monthlySortedRushes async {
+    final Map<String, List<Rush>> mSortedRushes = {};
+    final rushes = await getRushes;
+
+    for (final rush in rushes) {
+      final month = DateFormat('MMMM yyyy').format(rush.startDate);
+      if (mSortedRushes.containsKey(month))
+        mSortedRushes[month].add(rush);
+      else
+        mSortedRushes.addAll({
+          month: [rush]
+        });
+    }
+    return mSortedRushes;
   }
 }
