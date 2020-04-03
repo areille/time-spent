@@ -3,8 +3,8 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
-import 'package:time_spent/data/db/database.dart';
 
+import '../data/db/database.dart';
 import '../services/bloc/work_bloc.dart';
 import '../utils/datetime_ext.dart';
 import '../utils/duration_ext.dart';
@@ -25,10 +25,27 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  Future<bool> get _deleteDialog => showDialog(
+        context: context,
+        child: AlertDialog(
+          content: Text('Delete this input ?'),
+          actions: <Widget>[
+            FlatButton(
+              child: Text('CANCEL'),
+              onPressed: () => Navigator.pop(context, false),
+            ),
+            FlatButton(
+              child: Text('YES'),
+              onPressed: () => Navigator.pop(context, true),
+            ),
+          ],
+        ),
+      );
+
   @override
   Widget build(BuildContext context) {
-    return Material(
-      child: Container(
+    return Scaffold(
+      body: Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topRight,
@@ -94,39 +111,106 @@ class _HomePageState extends State<HomePage> {
                       child: Center(
                         child: AnimatedSwitcher(
                           duration: kAnimationDuration,
-                          child: RaisedButton(
-                            key: ValueKey(state),
-                            child: Padding(
-                              padding: const EdgeInsets.symmetric(
-                                vertical: 12,
-                                horizontal: 4,
-                              ),
-                              child: state is Ready
-                                  ? StartWorkingText()
-                                  : state is InProgress
-                                      ? Text('STOP WORKING', style: textStyle)
-                                      : state is Done
-                                          ? Text('BACK HOME', style: textStyle)
-                                          : Container(),
-                            ),
-                            onPressed: () {
-                              if (state is Ready)
-                                BlocProvider.of<WorkBloc>(context).add(
-                                  Started(DateTime.now()),
-                                );
-                              if (state is InProgress)
-                                BlocProvider.of<WorkBloc>(context).add(
-                                  Stopped(DateTime.now()),
-                                );
-                              if (state is Done)
-                                BlocProvider.of<WorkBloc>(context).add(Reset());
-                            },
-                            color: Colors.indigo[400],
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(6),
-                            ),
-                            splashColor: Colors.grey[400].withOpacity(0.5),
-                          ),
+                          child: state is Done
+                              ? Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: <Widget>[
+                                    RawMaterialButton(
+                                      onPressed: () {
+                                        BlocProvider.of<WorkBloc>(context)
+                                            .add(Reset());
+                                        Scaffold.of(context).showSnackBar(
+                                          SnackBar(
+                                            content: Row(
+                                              children: <Widget>[
+                                                Icon(
+                                                  Icons.check_circle_outline,
+                                                  color: Colors.green[300],
+                                                ),
+                                                SizedBox(width: 16),
+                                                Text('Input saved !'),
+                                              ],
+                                            ),
+                                          ),
+                                        );
+                                      },
+                                      child: const Icon(
+                                        Icons.check,
+                                        color: Colors.green,
+                                      ),
+                                      shape: const CircleBorder(),
+                                      fillColor: Colors.white,
+                                      constraints: const BoxConstraints(
+                                          minWidth: 48, minHeight: 48),
+                                    ),
+                                    SizedBox(width: 16),
+                                    RawMaterialButton(
+                                      onPressed: () async {
+                                        final res = await _deleteDialog;
+                                        if (res) {
+                                          BlocProvider.of<WorkBloc>(context)
+                                              .add(Deleted(state.rush.id));
+                                          Scaffold.of(context).showSnackBar(
+                                            SnackBar(
+                                              content: Row(
+                                                children: <Widget>[
+                                                  Icon(
+                                                    Icons.info_outline,
+                                                    color: Colors.blue[300],
+                                                  ),
+                                                  SizedBox(width: 16),
+                                                  Text('Input deleted'),
+                                                ],
+                                              ),
+                                            ),
+                                          );
+                                        }
+                                      },
+                                      child: const Icon(
+                                        Icons.delete,
+                                        color: Colors.red,
+                                      ),
+                                      shape: const CircleBorder(),
+                                      fillColor: Colors.white,
+                                      constraints: const BoxConstraints(
+                                          minWidth: 48, minHeight: 48),
+                                    ),
+                                  ],
+                                )
+                              : RaisedButton(
+                                  key: ValueKey(state),
+                                  child: Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                      vertical: 12,
+                                      horizontal: 4,
+                                    ),
+                                    child: state is Ready
+                                        ? StartWorkingText()
+                                        : state is InProgress
+                                            ? Text('STOP WORKING',
+                                                style: textStyle)
+                                            : state is Done
+                                                ? Text('BACK HOME',
+                                                    style: textStyle)
+                                                : Container(),
+                                  ),
+                                  onPressed: () {
+                                    if (state is Ready)
+                                      BlocProvider.of<WorkBloc>(context).add(
+                                        Started(DateTime.now()),
+                                      );
+                                    if (state is InProgress)
+                                      BlocProvider.of<WorkBloc>(context).add(
+                                        Stopped(DateTime.now()),
+                                      );
+                                  },
+                                  color: Colors.indigo[400],
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(6),
+                                  ),
+                                  splashColor:
+                                      Colors.grey[400].withOpacity(0.5),
+                                ),
                         ),
                       ),
                     ),
