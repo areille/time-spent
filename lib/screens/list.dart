@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../data/db/database.dart';
 import '../services/dao/rushes_dao.dart';
 import '../utils/duration_ext.dart';
+import '../widgets/back_button.dart';
 import 'month_list.dart';
 
 class ListPage extends StatelessWidget {
@@ -18,28 +19,36 @@ class ListPage extends StatelessWidget {
             colors: [Colors.blue, Colors.green],
           ),
         ),
-        child: StreamBuilder<Map<String, List<Rush>>>(
-          stream: RushesDao(Provider.of<Database>(context))
-              .watchMonthlySortedRushes,
-          builder: (context, snapshot) {
-            if (snapshot.hasData) {
-              if (snapshot.data.isEmpty) {
-                return Center(
-                  child: Text('No data...'),
-                );
-              }
-              return ListView.builder(
-                itemCount: snapshot.data.length,
-                itemBuilder: (_, i) => MonthCard(
-                  month: [...snapshot.data.keys][i],
-                  rushes: [...snapshot.data.values][i],
-                ),
-              );
-            } else
-              return Center(
-                child: CircularProgressIndicator(),
-              );
-          },
+        child: Column(
+          children: <Widget>[
+            const SizedBox(height: 24),
+            const BackWidget(),
+            Expanded(
+              child: StreamBuilder<Map<String, List<Rush>>>(
+                stream: RushesDao(Provider.of<Database>(context))
+                    .watchMonthlySortedRushes,
+                builder: (context, snapshot) {
+                  if (snapshot.hasData) {
+                    if (snapshot.data.isEmpty) {
+                      return Center(
+                        child: Text('No data...'),
+                      );
+                    }
+                    return ListView.builder(
+                      itemCount: snapshot.data.length,
+                      itemBuilder: (_, i) => MonthCard(
+                        month: [...snapshot.data.keys][i],
+                        rushes: [...snapshot.data.values][i],
+                      ),
+                    );
+                  } else
+                    return Center(
+                      child: CircularProgressIndicator(),
+                    );
+                },
+              ),
+            ),
+          ],
         ),
       ),
     );

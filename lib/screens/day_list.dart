@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import 'package:time_spent/widgets/back_button.dart';
 
 import '../data/db/database.dart';
 import '../services/dao/rushes_dao.dart';
@@ -32,6 +33,7 @@ class DayListPage extends StatelessWidget {
               child: Column(
                 children: <Widget>[
                   SizedBox(height: 24),
+                  const BackWidget(),
                   Padding(
                     padding: const EdgeInsets.only(top: 8),
                     child: Card(

@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
-import 'package:time_spent/services/dao/rushes_dao.dart';
 
 import '../data/db/database.dart';
+import '../services/dao/rushes_dao.dart';
 import '../utils/duration_ext.dart';
+import '../widgets/back_button.dart';
 import 'day_list.dart';
 
 class MontListPage extends StatelessWidget {
@@ -43,7 +44,8 @@ class MontListPage extends StatelessWidget {
               ),
               child: Column(
                 children: <Widget>[
-                  SizedBox(height: 24),
+                  const SizedBox(height: 24),
+                  const BackWidget(),
                   Padding(
                     padding: const EdgeInsets.only(top: 8),
                     child: Card(
