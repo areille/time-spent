@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 import '../data/db/database.dart';
@@ -19,8 +18,9 @@ class ListPage extends StatelessWidget {
             colors: [Colors.blue, Colors.green],
           ),
         ),
-        child: FutureBuilder<Map<String, List<Rush>>>(
-          future: RushesDao(Provider.of<Database>(context)).monthlySortedRushes,
+        child: StreamBuilder<Map<String, List<Rush>>>(
+          stream: RushesDao(Provider.of<Database>(context))
+              .watchMonthlySortedRushes,
           builder: (context, snapshot) {
             if (snapshot.hasData) {
               if (snapshot.data.isEmpty) {
@@ -103,10 +103,7 @@ class MonthCard extends StatelessWidget {
         onTap: () => Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (_) => MontListPage(
-              month: month,
-              rushes: rushes,
-            ),
+            builder: (_) => MontListPage(month: month),
           ),
         ),
       ),

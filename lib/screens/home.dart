@@ -7,6 +7,7 @@ import 'package:intl/intl.dart';
 import '../data/db/database.dart';
 import '../services/bloc/work_bloc.dart';
 import '../utils/datetime_ext.dart';
+import '../utils/delete_dialog.dart';
 import '../utils/duration_ext.dart';
 import '../widgets/clock.dart';
 import 'list.dart';
@@ -25,23 +26,6 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  Future<bool> get _deleteDialog => showDialog(
-        context: context,
-        child: AlertDialog(
-          content: Text('Delete this input ?'),
-          actions: <Widget>[
-            FlatButton(
-              child: Text('CANCEL'),
-              onPressed: () => Navigator.pop(context, false),
-            ),
-            FlatButton(
-              child: Text('YES'),
-              onPressed: () => Navigator.pop(context, true),
-            ),
-          ],
-        ),
-      );
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -146,7 +130,7 @@ class _HomePageState extends State<HomePage> {
                                     SizedBox(width: 16),
                                     RawMaterialButton(
                                       onPressed: () async {
-                                        final res = await _deleteDialog;
+                                        final res = await deleteDialog(context);
                                         if (res) {
                                           BlocProvider.of<WorkBloc>(context)
                                               .add(Deleted(state.rush.id));

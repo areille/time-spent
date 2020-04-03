@@ -1,53 +1,59 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 
 import '../data/db/database.dart';
+import '../services/dao/rushes_dao.dart';
+import '../utils/delete_dialog.dart';
 import '../utils/duration_ext.dart';
 
 class DayListPage extends StatelessWidget {
   const DayListPage({
     Key key,
     @required this.day,
-    @required this.rushes,
   }) : super(key: key);
 
   final String day;
-  final List<Rush> rushes;
 
   @override
   Widget build(BuildContext context) {
-    return Material(
-      child: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topRight,
-            end: Alignment.bottomLeft,
-            colors: [Colors.blue, Colors.green],
-          ),
-        ),
-        child: Column(
-          children: <Widget>[
-            SizedBox(height: 24),
-            Padding(
-              padding: const EdgeInsets.only(top: 8),
-              child: Card(
-                color: Colors.indigo[400],
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Text(day),
+    return StreamBuilder<List<Rush>>(
+        stream: RushesDao(Provider.of<Database>(context)).watchRushesByDay(day),
+        builder: (context, snapshot) {
+          return Material(
+            child: Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topRight,
+                  end: Alignment.bottomLeft,
+                  colors: [Colors.blue, Colors.green],
                 ),
               ),
-            ),
-            Expanded(
-              child: ListView.builder(
-                itemCount: rushes.length,
-                itemBuilder: (_, i) => RushCard(rush: rushes[i]),
+              child: Column(
+                children: <Widget>[
+                  SizedBox(height: 24),
+                  Padding(
+                    padding: const EdgeInsets.only(top: 8),
+                    child: Card(
+                      color: Colors.indigo[400],
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Text(day),
+                      ),
+                    ),
+                  ),
+                  if (snapshot.hasData && snapshot.data.isNotEmpty)
+                    Expanded(
+                      child: ListView.builder(
+                        itemCount: snapshot.data.length,
+                        itemBuilder: (_, i) => RushCard(rush: snapshot.data[i]),
+                      ),
+                    ),
+                ],
               ),
             ),
-          ],
-        ),
-      ),
-    );
+          );
+        });
   }
 }
 
@@ -68,19 +74,36 @@ class RushCard extends StatelessWidget {
         child: Padding(
           padding: const EdgeInsets.all(8),
           child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: <Widget>[
-              Icon(
-                Icons.timelapse,
-                color: Colors.white,
+              Row(
+                children: <Widget>[
+                  Icon(
+                    Icons.timelapse,
+                    color: Colors.amber,
+                  ),
+                  SizedBox(width: 8),
+                  Text(
+                    'From $startPretty to $endPretty | $durationPretty',
+                    style: TextStyle(
+                      fontStyle: FontStyle.normal,
+                      fontSize: 18,
+                    ),
+                  ),
+                ],
               ),
-              SizedBox(width: 8),
-              Text(
-                'From $startPretty to $endPretty | $durationPretty',
-                style: TextStyle(
-                  fontStyle: FontStyle.normal,
-                  fontSize: 18,
+              GestureDetector(
+                child: Icon(
+                  Icons.delete,
+                  color: Colors.deepOrange[300],
                 ),
-              ),
+                onTap: () async {
+                  final res = await deleteDialog(context);
+                  if (res)
+                    RushesDao(Provider.of<Database>(context, listen: false))
+                        .deleteRush(rush.id);
+                },
+              )
             ],
           ),
         ),
