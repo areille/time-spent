@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../data/db/database.dart';
 import '../services/dao/rushes_dao.dart';
-import '../utils/duration_ext.dart';
+import '../utils/extensions.dart';
 import '../widgets/back_button.dart';
 import 'month_list.dart';
 

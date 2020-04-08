@@ -36,7 +36,7 @@ class App extends StatelessWidget {
     return MaterialApp(
       title: 'Time Spent',
       theme: ThemeData(
-        primarySwatch: Colors.blueGrey,
+        primarySwatch: Colors.blue,
         textTheme: TextTheme(body1: style),
       ),
       home: HomePage(),
