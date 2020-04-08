@@ -44,29 +44,12 @@ class _HomePageState extends State<HomePage> {
             return Stack(
               children: [
                 Positioned(
-                  child: RawMaterialButton(
-                    onPressed: () {
-                      Navigator.push(context,
-                          MaterialPageRoute(builder: (_) => ListPage()));
-                    },
-                    child: const Icon(Icons.list),
-                    shape: const CircleBorder(),
-                    fillColor: Colors.white,
-                    constraints:
-                        const BoxConstraints(minWidth: 36, minHeight: 36),
-                  ),
+                  child: _ListButton(),
                   top: 28,
                   left: 4,
                 ),
                 Positioned(
-                  child: RawMaterialButton(
-                    onPressed: () {},
-                    child: const Icon(Icons.settings),
-                    shape: const CircleBorder(),
-                    fillColor: Colors.white,
-                    constraints:
-                        const BoxConstraints(minWidth: 36, minHeight: 36),
-                  ),
+                  child: _SettingsButton(),
                   top: 28,
                   right: 4,
                 ),
@@ -199,6 +182,42 @@ class _HomePageState extends State<HomePage> {
           },
         ),
       ),
+    );
+  }
+}
+
+class _SettingsButton extends StatelessWidget {
+  const _SettingsButton({
+    Key key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return RawMaterialButton(
+      onPressed: () {},
+      child: const Icon(Icons.settings),
+      shape: const CircleBorder(),
+      fillColor: Colors.white,
+      constraints: const BoxConstraints(minWidth: 36, minHeight: 36),
+    );
+  }
+}
+
+class _ListButton extends StatelessWidget {
+  const _ListButton({
+    Key key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return RawMaterialButton(
+      onPressed: () {
+        Navigator.push(context, MaterialPageRoute(builder: (_) => ListPage()));
+      },
+      child: const Icon(Icons.list),
+      shape: const CircleBorder(),
+      fillColor: Colors.white,
+      constraints: const BoxConstraints(minWidth: 36, minHeight: 36),
     );
   }
 }
