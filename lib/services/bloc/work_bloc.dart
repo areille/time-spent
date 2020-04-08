@@ -1,8 +1,8 @@
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/widgets.dart';
-import 'package:time_spent/data/db/database.dart';
 
+import '../../data/db/database.dart';
 import '../dao/rushes_dao.dart';
 
 class WorkBloc extends Bloc<WorkEvent, WorkState> {
@@ -10,6 +10,7 @@ class WorkBloc extends Bloc<WorkEvent, WorkState> {
 
   final RushesDao rushesDao;
   DateTime startDate;
+  Rush rush;
 
   @override
   Stream<WorkState> mapEventToState(WorkEvent event) async* {
@@ -18,17 +19,16 @@ class WorkBloc extends Bloc<WorkEvent, WorkState> {
       yield InProgress(event.time);
     }
     if (event is Stopped) {
-      final rush = Rush(
+      rush = Rush(
         id: null,
         startDate: startDate,
         endDate: event.time,
         projectId: null,
       );
-      await rushesDao.saveRush(rush);
       yield Done(rush);
     }
-    if (event is Deleted) {
-      await rushesDao.deleteRush(event.id);
+    if (event is Saved) {
+      await rushesDao.saveRush(rush);
       yield Ready();
     }
     if (event is Reset) {
@@ -62,13 +62,9 @@ class Stopped extends WorkEvent {
   List<Object> get props => [time];
 }
 
-class Deleted extends WorkEvent {
-  Deleted(this.id);
-
-  final int id;
-
+class Saved extends WorkEvent {
   @override
-  List<Object> get props => [id];
+  List<Object> get props => [];
 }
 
 class Reset extends WorkEvent {

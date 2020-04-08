@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flushbar/flushbar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
@@ -102,21 +103,17 @@ class _HomePageState extends State<HomePage> {
                                     RawMaterialButton(
                                       onPressed: () {
                                         BlocProvider.of<WorkBloc>(context)
-                                            .add(Reset());
-                                        Scaffold.of(context).showSnackBar(
-                                          SnackBar(
-                                            content: Row(
-                                              children: <Widget>[
-                                                Icon(
-                                                  Icons.check_circle_outline,
-                                                  color: Colors.green[300],
-                                                ),
-                                                SizedBox(width: 16),
-                                                Text('Input saved !'),
-                                              ],
-                                            ),
+                                            .add(Saved());
+                                        Flushbar(
+                                          icon: const Icon(
+                                            Icons.check_circle_outline,
+                                            color: Colors.greenAccent,
                                           ),
-                                        );
+                                          message: 'Input saved !',
+                                          duration: const Duration(seconds: 3),
+                                          margin: const EdgeInsets.all(8),
+                                          borderRadius: 8,
+                                        )..show(context);
                                       },
                                       child: const Icon(
                                         Icons.check,
@@ -133,21 +130,18 @@ class _HomePageState extends State<HomePage> {
                                         final res = await deleteDialog(context);
                                         if (res) {
                                           BlocProvider.of<WorkBloc>(context)
-                                              .add(Deleted(state.rush.id));
-                                          Scaffold.of(context).showSnackBar(
-                                            SnackBar(
-                                              content: Row(
-                                                children: <Widget>[
-                                                  Icon(
-                                                    Icons.info_outline,
-                                                    color: Colors.blue[300],
-                                                  ),
-                                                  SizedBox(width: 16),
-                                                  Text('Input deleted'),
-                                                ],
-                                              ),
+                                              .add(Reset());
+                                          Flushbar(
+                                            icon: const Icon(
+                                              Icons.info_outline,
+                                              color: Colors.blueAccent,
                                             ),
-                                          );
+                                            message: 'Input deleted',
+                                            duration:
+                                                const Duration(seconds: 3),
+                                            margin: const EdgeInsets.all(8),
+                                            borderRadius: 8,
+                                          )..show(context);
                                         }
                                       },
                                       child: const Icon(
