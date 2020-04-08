@@ -6,7 +6,7 @@ import 'package:time_spent/widgets/back_button.dart';
 import '../data/db/database.dart';
 import '../services/dao/rushes_dao.dart';
 import '../utils/delete_dialog.dart';
-import '../utils/duration_ext.dart';
+import '../utils/extensions.dart';
 
 class DayListPage extends StatelessWidget {
   const DayListPage({

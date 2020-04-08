@@ -7,9 +7,8 @@ import 'package:intl/intl.dart';
 
 import '../data/db/database.dart';
 import '../services/bloc/work_bloc.dart';
-import '../utils/datetime_ext.dart';
 import '../utils/delete_dialog.dart';
-import '../utils/duration_ext.dart';
+import '../utils/extensions.dart';
 import '../widgets/clock.dart';
 import 'list.dart';
 
@@ -76,103 +75,117 @@ class _HomePageState extends State<HomePage> {
                     ),
                     Container(
                       height: thirdHeight,
-                      child: Center(
-                        child: AnimatedSwitcher(
-                          duration: kAnimationDuration,
-                          child: state is Done
-                              ? Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: <Widget>[
-                                    RawMaterialButton(
-                                      onPressed: () {
-                                        BlocProvider.of<WorkBloc>(context)
-                                            .add(Saved());
-                                        Flushbar(
-                                          icon: const Icon(
-                                            Icons.check_circle_outline,
-                                            color: Colors.greenAccent,
-                                          ),
-                                          message: 'Input saved !',
-                                          duration: const Duration(seconds: 3),
-                                          margin: const EdgeInsets.all(8),
-                                          borderRadius: 8,
-                                        )..show(context);
-                                      },
-                                      child: const Icon(
-                                        Icons.check,
-                                        color: Colors.green,
-                                      ),
-                                      shape: const CircleBorder(),
-                                      fillColor: Colors.white,
-                                      constraints: const BoxConstraints(
-                                          minWidth: 48, minHeight: 48),
-                                    ),
-                                    SizedBox(width: 16),
-                                    RawMaterialButton(
-                                      onPressed: () async {
-                                        final res = await deleteDialog(context);
-                                        if (res) {
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          AnimatedSwitcher(
+                            duration: kAnimationDuration,
+                            child: state is Done
+                                ? Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: <Widget>[
+                                      RawMaterialButton(
+                                        onPressed: () {
                                           BlocProvider.of<WorkBloc>(context)
-                                              .add(Reset());
+                                              .add(Saved());
                                           Flushbar(
                                             icon: const Icon(
-                                              Icons.info_outline,
-                                              color: Colors.blueAccent,
+                                              Icons.check_circle_outline,
+                                              color: Colors.greenAccent,
                                             ),
-                                            message: 'Input deleted',
+                                            message: 'Input saved !',
                                             duration:
                                                 const Duration(seconds: 3),
                                             margin: const EdgeInsets.all(8),
                                             borderRadius: 8,
                                           )..show(context);
-                                        }
-                                      },
-                                      child: const Icon(
-                                        Icons.delete,
-                                        color: Colors.red,
+                                        },
+                                        child: const Icon(
+                                          Icons.check,
+                                          color: Colors.green,
+                                        ),
+                                        shape: const CircleBorder(),
+                                        fillColor: Colors.white,
+                                        constraints: const BoxConstraints(
+                                            minWidth: 48, minHeight: 48),
                                       ),
-                                      shape: const CircleBorder(),
-                                      fillColor: Colors.white,
-                                      constraints: const BoxConstraints(
-                                          minWidth: 48, minHeight: 48),
+                                      SizedBox(width: 16),
+                                      RawMaterialButton(
+                                        onPressed: () async {
+                                          final res =
+                                              await deleteDialog(context);
+                                          if (res) {
+                                            BlocProvider.of<WorkBloc>(context)
+                                                .add(Reset());
+                                            Flushbar(
+                                              icon: const Icon(
+                                                Icons.info_outline,
+                                                color: Colors.blueAccent,
+                                              ),
+                                              message: 'Input deleted',
+                                              duration:
+                                                  const Duration(seconds: 3),
+                                              margin: const EdgeInsets.all(8),
+                                              borderRadius: 8,
+                                            )..show(context);
+                                          }
+                                        },
+                                        child: const Icon(
+                                          Icons.delete,
+                                          color: Colors.red,
+                                        ),
+                                        shape: const CircleBorder(),
+                                        fillColor: Colors.white,
+                                        constraints: const BoxConstraints(
+                                            minWidth: 48, minHeight: 48),
+                                      ),
+                                    ],
+                                  )
+                                : RaisedButton(
+                                    key: ValueKey(state),
+                                    child: Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                        vertical: 12,
+                                        horizontal: 4,
+                                      ),
+                                      child: state is Ready
+                                          ? StartWorkingText()
+                                          : state is InProgress
+                                              ? Text('STOP WORKING',
+                                                  style: textStyle)
+                                              : Container(),
                                     ),
-                                  ],
-                                )
-                              : RaisedButton(
-                                  key: ValueKey(state),
-                                  child: Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                      vertical: 12,
-                                      horizontal: 4,
+                                    onPressed: () {
+                                      if (state is Ready)
+                                        BlocProvider.of<WorkBloc>(context).add(
+                                          Started(DateTime.now()),
+                                        );
+                                      if (state is InProgress)
+                                        BlocProvider.of<WorkBloc>(context).add(
+                                          Stopped(DateTime.now()),
+                                        );
+                                    },
+                                    color: Colors.indigo[400],
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(6),
                                     ),
-                                    child: state is Ready
-                                        ? StartWorkingText()
-                                        : state is InProgress
-                                            ? Text('STOP WORKING',
-                                                style: textStyle)
-                                            : state is Done
-                                                ? Text('BACK HOME',
-                                                    style: textStyle)
-                                                : Container(),
+                                    splashColor:
+                                        Colors.grey[400].withOpacity(0.5),
                                   ),
-                                  onPressed: () {
-                                    if (state is Ready)
-                                      BlocProvider.of<WorkBloc>(context).add(
-                                        Started(DateTime.now()),
-                                      );
-                                    if (state is InProgress)
-                                      BlocProvider.of<WorkBloc>(context).add(
-                                        Stopped(DateTime.now()),
-                                      );
-                                  },
-                                  color: Colors.indigo[400],
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(6),
-                                  ),
-                                  splashColor:
-                                      Colors.grey[400].withOpacity(0.5),
-                                ),
-                        ),
+                          ),
+                          AnimatedContainer(
+                            duration: kAnimationDuration,
+                            height: state is Ready ? 20 : 0,
+                          ),
+                          AnimatedCrossFade(
+                            duration: kAnimationDuration,
+                            firstChild: const _StartedEarlierButton(),
+                            secondChild: Container(),
+                            crossFadeState: state is Ready
+                                ? CrossFadeState.showFirst
+                                : CrossFadeState.showSecond,
+                          ),
+                        ],
                       ),
                     ),
                   ],
@@ -180,6 +193,70 @@ class _HomePageState extends State<HomePage> {
               ],
             );
           },
+        ),
+      ),
+    );
+  }
+}
+
+class _StartedEarlierButton extends StatelessWidget {
+  const _StartedEarlierButton({
+    Key key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return RaisedButton(
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(20),
+      ),
+      splashColor: Colors.grey[400].withOpacity(0.5),
+      onPressed: () async {
+        final time = await showTimePicker(
+          context: context,
+          initialTime: TimeOfDay.now(),
+        );
+        if (time == null) return;
+        final dTime = time.toDate();
+        if (dTime.isAfter(DateTime.now()))
+          showDialog(
+              context: context,
+              child: AlertDialog(
+                content: Text(
+                  'Can you work in the future ?',
+                ),
+                actions: [
+                  FlatButton(
+                    child: Text('CLOSE'),
+                    onPressed: Navigator.of(context).pop,
+                  ),
+                ],
+              ));
+        else
+          BlocProvider.of<WorkBloc>(context).add(
+            Started(dTime),
+          );
+      },
+      child: ShaderMask(
+        shaderCallback: (bounds) => LinearGradient(
+          colors: [
+            Colors.pink.shade300,
+            Colors.orange.shade400,
+          ],
+        ).createShader(
+          Rect.fromLTWH(
+            0,
+            0,
+            bounds.width,
+            bounds.height,
+          ),
+        ),
+        child: const Text(
+          'Started earlier ?',
+          style: TextStyle(
+            fontSize: 14,
+            color: Colors.white,
+          ),
         ),
       ),
     );
