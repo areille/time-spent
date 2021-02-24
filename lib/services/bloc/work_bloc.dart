@@ -1,6 +1,7 @@
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
+import 'package:moor/moor.dart';
 import 'package:provider/provider.dart';
 
 import '../../data/db/database.dart';
@@ -9,29 +10,22 @@ class WorkBloc extends Bloc<WorkEvent, WorkState> {
   WorkBloc({@required this.context}) : super(Ready());
 
   final BuildContext context;
-  DateTime startDate;
-  Rush rush;
+
+  RushesCompanion rush = const RushesCompanion();
 
   @override
   Stream<WorkState> mapEventToState(WorkEvent event) async* {
     if (event is Started) {
-      startDate = event.time;
+      rush = rush.copyWith(
+        projectId: Value(event.projectId),
+        startDate: Value(event.time),
+      );
       yield InProgress(event.time);
     }
     if (event is Stopped) {
-      rush = Rush(
-        id: null,
-        startDate: startDate,
-        endDate: event.time,
-      );
-      yield Done(rush);
-    }
-    if (event is Saved) {
+      rush.copyWith(endDate: Value(event.time));
       await context.read<DB>().rushesDao.saveRush(rush);
-      yield Ready();
-    }
-    if (event is Reset) {
-      yield Ready();
+      yield Done(rush);
     }
   }
 }
@@ -41,12 +35,13 @@ class WorkBloc extends Bloc<WorkEvent, WorkState> {
 abstract class WorkEvent extends Equatable {}
 
 class Started extends WorkEvent {
-  Started(this.time);
+  Started(this.projectId, this.time);
 
+  final int projectId;
   final DateTime time;
 
   @override
-  List<Object> get props => [time];
+  List<Object> get props => [projectId, time];
 }
 
 class Stopped extends WorkEvent {
@@ -56,16 +51,6 @@ class Stopped extends WorkEvent {
 
   @override
   List<Object> get props => [time];
-}
-
-class Saved extends WorkEvent {
-  @override
-  List<Object> get props => [];
-}
-
-class Reset extends WorkEvent {
-  @override
-  List<Object> get props => [];
 }
 
 // STATES
@@ -89,7 +74,7 @@ class InProgress extends WorkState {
 class Done extends WorkState {
   Done(this.rush);
 
-  final Rush rush;
+  final RushesCompanion rush;
 
   @override
   List<Object> get props => [rush];

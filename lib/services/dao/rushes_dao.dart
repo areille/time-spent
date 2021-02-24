@@ -9,7 +9,7 @@ part 'rushes_dao.g.dart';
 class RushesDao extends DatabaseAccessor<DB> with _$RushesDaoMixin {
   RushesDao(DB db) : super(db);
 
-  Future<int> saveRush(Rush rush) async {
+  Future<int> saveRush(RushesCompanion rush) async {
     return into(rushes).insert(rush);
   }
 
@@ -62,5 +62,10 @@ class RushesDao extends DatabaseAccessor<DB> with _$RushesDaoMixin {
       }
       yield rushes;
     }
+  }
+
+  Future<void> deleteRushesForProject(int projectId) {
+    return (delete(rushes)..where((rush) => rush.projectId.equals(projectId)))
+        .go();
   }
 }
