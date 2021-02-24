@@ -14,10 +14,10 @@ class BackWidget extends StatelessWidget {
         children: [
           RawMaterialButton(
             onPressed: Navigator.of(context).pop,
-            child: const Icon(Icons.arrow_back),
             shape: const CircleBorder(),
             fillColor: Colors.white,
             constraints: const BoxConstraints(minWidth: 36, minHeight: 36),
+            child: const Icon(Icons.arrow_back),
           ),
         ],
       ),

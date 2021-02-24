@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
-import 'package:time_spent/widgets/back_button.dart';
 
 import '../data/db/database.dart';
-import '../services/dao/rushes_dao.dart';
 import '../utils/delete_dialog.dart';
 import '../utils/extensions.dart';
+import '../widgets/back_button.dart';
 
 class DayListPage extends StatelessWidget {
   const DayListPage({
@@ -19,11 +18,11 @@ class DayListPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<List<Rush>>(
-        stream: RushesDao(Provider.of<Database>(context)).watchRushesByDay(day),
+        stream: context.read<DB>().rushesDao.watchRushesByDay(day),
         builder: (context, snapshot) {
           return Material(
             child: Container(
-              decoration: BoxDecoration(
+              decoration: const BoxDecoration(
                 gradient: LinearGradient(
                   begin: Alignment.topRight,
                   end: Alignment.bottomLeft,
@@ -32,14 +31,14 @@ class DayListPage extends StatelessWidget {
               ),
               child: Column(
                 children: <Widget>[
-                  SizedBox(height: 24),
+                  const SizedBox(height: 24),
                   const BackWidget(),
                   Padding(
                     padding: const EdgeInsets.only(top: 8),
                     child: Card(
                       color: Colors.indigo[400],
                       child: Padding(
-                        padding: const EdgeInsets.all(8.0),
+                        padding: const EdgeInsets.all(8),
                         child: Text(day),
                       ),
                     ),
@@ -80,14 +79,14 @@ class RushCard extends StatelessWidget {
             children: <Widget>[
               Row(
                 children: <Widget>[
-                  Icon(
+                  const Icon(
                     Icons.timelapse,
                     color: Colors.amber,
                   ),
-                  SizedBox(width: 8),
+                  const SizedBox(width: 8),
                   Text(
                     'From $startPretty to $endPretty | $durationPretty',
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontStyle: FontStyle.normal,
                       fontSize: 18,
                     ),
@@ -95,16 +94,16 @@ class RushCard extends StatelessWidget {
                 ],
               ),
               GestureDetector(
+                onTap: () async {
+                  final res = await deleteDialog(context);
+                  if (res) {
+                    await context.read<DB>().rushesDao.deleteRush(rush.id);
+                  }
+                },
                 child: Icon(
                   Icons.delete,
                   color: Colors.deepOrange[300],
                 ),
-                onTap: () async {
-                  final res = await deleteDialog(context);
-                  if (res)
-                    RushesDao(Provider.of<Database>(context, listen: false))
-                        .deleteRush(rush.id);
-                },
               )
             ],
           ),

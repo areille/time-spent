@@ -3,7 +3,6 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 import '../data/db/database.dart';
-import '../services/dao/rushes_dao.dart';
 import '../utils/extensions.dart';
 import '../widgets/back_button.dart';
 import 'day_list.dart';
@@ -19,23 +18,24 @@ class MontListPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<List<Rush>>(
-        stream:
-            RushesDao(Provider.of<Database>(context)).watchRushesByMonth(month),
+        stream: context.read<DB>().rushesDao.watchRushesByMonth(month),
         builder: (context, snapshot) {
           final Map<String, List<Rush>> dSortedRushes = {};
-          if (snapshot.hasData && snapshot.data.isNotEmpty)
+          if (snapshot.hasData && snapshot.data.isNotEmpty) {
             for (final rush in snapshot.data) {
               final day = DateFormat('dd/MM').format(rush.startDate);
-              if (dSortedRushes.containsKey(day))
+              if (dSortedRushes.containsKey(day)) {
                 dSortedRushes[day].add(rush);
-              else
+              } else {
                 dSortedRushes.addAll({
                   day: [rush]
                 });
+              }
             }
+          }
           return Material(
             child: Container(
-              decoration: BoxDecoration(
+              decoration: const BoxDecoration(
                 gradient: LinearGradient(
                   begin: Alignment.topRight,
                   end: Alignment.bottomLeft,
@@ -51,7 +51,7 @@ class MontListPage extends StatelessWidget {
                     child: Card(
                       color: Colors.indigo[400],
                       child: Padding(
-                        padding: const EdgeInsets.all(8.0),
+                        padding: const EdgeInsets.all(8),
                         child: Text(month),
                       ),
                     ),
@@ -94,6 +94,12 @@ class DayCard extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.all(8),
       child: InkWell(
+        onTap: () => Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => DayListPage(day: day),
+          ),
+        ),
         child: Card(
           color: Colors.indigo[400],
           child: Padding(
@@ -103,14 +109,14 @@ class DayCard extends StatelessWidget {
               children: <Widget>[
                 Row(
                   children: <Widget>[
-                    Icon(
+                    const Icon(
                       Icons.calendar_today,
                       color: Colors.white,
                     ),
-                    SizedBox(width: 8),
+                    const SizedBox(width: 8),
                     Text(
                       day,
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontStyle: FontStyle.normal,
                         fontSize: 18,
                       ),
@@ -119,19 +125,13 @@ class DayCard extends StatelessWidget {
                 ),
                 Text(
                   total.pretty(),
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontStyle: FontStyle.normal,
                     fontSize: 18,
                   ),
                 )
               ],
             ),
-          ),
-        ),
-        onTap: () => Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (_) => DayListPage(day: day),
           ),
         ),
       ),

@@ -6,8 +6,8 @@ import '../../data/db/database.dart';
 part 'rushes_dao.g.dart';
 
 @UseDao(tables: [Rushes])
-class RushesDao extends DatabaseAccessor<Database> with _$RushesDaoMixin {
-  RushesDao(Database db) : super(db);
+class RushesDao extends DatabaseAccessor<DB> with _$RushesDaoMixin {
+  RushesDao(DB db) : super(db);
 
   Future<int> saveRush(Rush rush) async {
     return into(rushes).insert(rush);
@@ -26,12 +26,13 @@ class RushesDao extends DatabaseAccessor<Database> with _$RushesDaoMixin {
       final Map<String, List<Rush>> mSortedRushes = {};
       for (final rush in event) {
         final month = DateFormat('MMMM yyyy').format(rush.startDate);
-        if (mSortedRushes.containsKey(month))
+        if (mSortedRushes.containsKey(month)) {
           mSortedRushes[month].add(rush);
-        else
+        } else {
           mSortedRushes.addAll({
             month: [rush]
           });
+        }
       }
       yield mSortedRushes;
     }
@@ -39,10 +40,12 @@ class RushesDao extends DatabaseAccessor<Database> with _$RushesDaoMixin {
 
   Stream<List<Rush>> watchRushesByMonth(String month) async* {
     await for (final event in watchRushes) {
-      List<Rush> rushes = [];
+      final rushes = List<Rush>.from([]);
       for (final rush in event) {
         final _month = DateFormat('MMMM yyyy').format(rush.startDate);
-        if (month == _month) rushes.add(rush);
+        if (month == _month) {
+          rushes.add(rush);
+        }
       }
       yield rushes;
     }
@@ -50,10 +53,12 @@ class RushesDao extends DatabaseAccessor<Database> with _$RushesDaoMixin {
 
   Stream<List<Rush>> watchRushesByDay(String day) async* {
     await for (final event in watchRushes) {
-      List<Rush> rushes = [];
+      final rushes = List<Rush>.from([]);
       for (final rush in event) {
         final _day = DateFormat('dd/MM').format(rush.startDate);
-        if (day == _day) rushes.add(rush);
+        if (day == _day) {
+          rushes.add(rush);
+        }
       }
       yield rushes;
     }

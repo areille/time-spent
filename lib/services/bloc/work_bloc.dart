@@ -1,14 +1,14 @@
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
-import 'package:flutter/widgets.dart';
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import '../../data/db/database.dart';
-import '../dao/rushes_dao.dart';
 
 class WorkBloc extends Bloc<WorkEvent, WorkState> {
-  WorkBloc({@required this.rushesDao}) : assert(rushesDao != null);
+  WorkBloc({@required this.context}) : super(Ready());
 
-  final RushesDao rushesDao;
+  final BuildContext context;
   DateTime startDate;
   Rush rush;
 
@@ -23,21 +23,17 @@ class WorkBloc extends Bloc<WorkEvent, WorkState> {
         id: null,
         startDate: startDate,
         endDate: event.time,
-        projectId: null,
       );
       yield Done(rush);
     }
     if (event is Saved) {
-      await rushesDao.saveRush(rush);
+      await context.read<DB>().rushesDao.saveRush(rush);
       yield Ready();
     }
     if (event is Reset) {
       yield Ready();
     }
   }
-
-  @override
-  WorkState get initialState => Ready();
 }
 
 // EVENTS

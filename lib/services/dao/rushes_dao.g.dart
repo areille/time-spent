@@ -6,6 +6,6 @@ part of 'rushes_dao.dart';
 // DaoGenerator
 // **************************************************************************
 
-mixin _$RushesDaoMixin on DatabaseAccessor<Database> {
-  $RushesTable get rushes => db.rushes;
+mixin _$RushesDaoMixin on DatabaseAccessor<DB> {
+  $RushesTable get rushes => attachedDatabase.rushes;
 }

@@ -1,9 +1,10 @@
 import 'dart:async';
 
-import 'package:flushbar/flushbar.dart';
+import 'package:another_flushbar/flushbar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
+import 'package:pedantic/pedantic.dart';
 
 import '../data/db/database.dart';
 import '../services/bloc/work_bloc.dart';
@@ -12,7 +13,7 @@ import '../utils/extensions.dart';
 import '../widgets/clock.dart';
 import 'list.dart';
 
-const kAnimationDuration = const Duration(milliseconds: 400);
+const kAnimationDuration = Duration(milliseconds: 400);
 const textStyle = TextStyle(
   fontWeight: FontWeight.bold,
   fontSize: 24,
@@ -21,6 +22,8 @@ const textStyle = TextStyle(
 );
 
 class HomePage extends StatefulWidget {
+  const HomePage({Key key}) : super(key: key);
+
   @override
   _HomePageState createState() => _HomePageState();
 }
@@ -30,7 +33,7 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
-        decoration: BoxDecoration(
+        decoration: const BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topRight,
             end: Alignment.bottomLeft,
@@ -42,26 +45,26 @@ class _HomePageState extends State<HomePage> {
             final thirdHeight = MediaQuery.of(context).size.height / 3;
             return Stack(
               children: [
-                Positioned(
-                  child: _ListButton(),
+                const Positioned(
                   top: 28,
                   left: 4,
+                  child: _ListButton(),
                 ),
-                Positioned(
-                  child: _SettingsButton(),
+                const Positioned(
                   top: 28,
                   right: 4,
+                  child: _SettingsButton(),
                 ),
                 Column(
                   children: [
-                    SizedBox(height: 24),
+                    const SizedBox(height: 24),
                     AnimatedContainer(
                       duration: kAnimationDuration,
                       curve: Curves.easeInOut,
                       height: state is Ready
                           ? MediaQuery.of(context).size.height / 2
                           : thirdHeight,
-                      child: ClockWidget(),
+                      child: const ClockWidget(),
                     ),
                     Expanded(
                       child: AnimatedSwitcher(
@@ -73,7 +76,7 @@ class _HomePageState extends State<HomePage> {
                                 : Container(),
                       ),
                     ),
-                    Container(
+                    SizedBox(
                       height: thirdHeight,
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
@@ -98,18 +101,18 @@ class _HomePageState extends State<HomePage> {
                                                 const Duration(seconds: 3),
                                             margin: const EdgeInsets.all(8),
                                             borderRadius: 8,
-                                          )..show(context);
+                                          ).show(context);
                                         },
-                                        child: const Icon(
-                                          Icons.check,
-                                          color: Colors.green,
-                                        ),
                                         shape: const CircleBorder(),
                                         fillColor: Colors.white,
                                         constraints: const BoxConstraints(
                                             minWidth: 48, minHeight: 48),
+                                        child: const Icon(
+                                          Icons.check,
+                                          color: Colors.green,
+                                        ),
                                       ),
-                                      SizedBox(width: 16),
+                                      const SizedBox(width: 16),
                                       RawMaterialButton(
                                         onPressed: () async {
                                           final res =
@@ -117,7 +120,7 @@ class _HomePageState extends State<HomePage> {
                                           if (res) {
                                             BlocProvider.of<WorkBloc>(context)
                                                 .add(Reset());
-                                            Flushbar(
+                                            unawaited(Flushbar(
                                               icon: const Icon(
                                                 Icons.info_outline,
                                                 color: Colors.blueAccent,
@@ -127,43 +130,33 @@ class _HomePageState extends State<HomePage> {
                                                   const Duration(seconds: 3),
                                               margin: const EdgeInsets.all(8),
                                               borderRadius: 8,
-                                            )..show(context);
+                                            ).show(context));
                                           }
                                         },
-                                        child: const Icon(
-                                          Icons.delete,
-                                          color: Colors.red,
-                                        ),
                                         shape: const CircleBorder(),
                                         fillColor: Colors.white,
                                         constraints: const BoxConstraints(
                                             minWidth: 48, minHeight: 48),
+                                        child: const Icon(
+                                          Icons.delete,
+                                          color: Colors.red,
+                                        ),
                                       ),
                                     ],
                                   )
                                 : RaisedButton(
                                     key: ValueKey(state),
-                                    child: Padding(
-                                      padding: const EdgeInsets.symmetric(
-                                        vertical: 12,
-                                        horizontal: 4,
-                                      ),
-                                      child: state is Ready
-                                          ? StartWorkingText()
-                                          : state is InProgress
-                                              ? Text('STOP WORKING',
-                                                  style: textStyle)
-                                              : Container(),
-                                    ),
                                     onPressed: () {
-                                      if (state is Ready)
+                                      if (state is Ready) {
                                         BlocProvider.of<WorkBloc>(context).add(
                                           Started(DateTime.now()),
                                         );
-                                      if (state is InProgress)
+                                      }
+                                      if (state is InProgress) {
                                         BlocProvider.of<WorkBloc>(context).add(
                                           Stopped(DateTime.now()),
                                         );
+                                      }
                                     },
                                     color: Colors.indigo[400],
                                     shape: RoundedRectangleBorder(
@@ -171,6 +164,20 @@ class _HomePageState extends State<HomePage> {
                                     ),
                                     splashColor:
                                         Colors.grey[400].withOpacity(0.5),
+                                    child: Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                        vertical: 12,
+                                        horizontal: 4,
+                                      ),
+                                      child: state is Ready
+                                          ? const StartWorkingText()
+                                          : state is InProgress
+                                              ? const Text(
+                                                  'STOP WORKING',
+                                                  style: textStyle,
+                                                )
+                                              : Container(),
+                                    ),
                                   ),
                           ),
                           AnimatedContainer(
@@ -216,26 +223,29 @@ class _StartedEarlierButton extends StatelessWidget {
           context: context,
           initialTime: TimeOfDay.now(),
         );
-        if (time == null) return;
+        if (time == null) {
+          return;
+        }
         final dTime = time.toDate();
-        if (dTime.isAfter(DateTime.now()))
-          showDialog(
+        if (dTime.isAfter(DateTime.now())) {
+          unawaited(showDialog(
               context: context,
               child: AlertDialog(
-                content: Text(
+                content: const Text(
                   'Can you work in the future ?',
                 ),
                 actions: [
                   FlatButton(
-                    child: Text('CLOSE'),
                     onPressed: Navigator.of(context).pop,
+                    child: const Text('CLOSE'),
                   ),
                 ],
-              ));
-        else
+              )));
+        } else {
           BlocProvider.of<WorkBloc>(context).add(
             Started(dTime),
           );
+        }
       },
       child: ShaderMask(
         shaderCallback: (bounds) => LinearGradient(
@@ -272,10 +282,10 @@ class _SettingsButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return RawMaterialButton(
       onPressed: () {},
-      child: const Icon(Icons.settings),
       shape: const CircleBorder(),
       fillColor: Colors.white,
       constraints: const BoxConstraints(minWidth: 36, minHeight: 36),
+      child: const Icon(Icons.settings),
     );
   }
 }
@@ -289,12 +299,15 @@ class _ListButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return RawMaterialButton(
       onPressed: () {
-        Navigator.push(context, MaterialPageRoute(builder: (_) => ListPage()));
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => const ListPage()),
+        );
       },
-      child: const Icon(Icons.list),
       shape: const CircleBorder(),
       fillColor: Colors.white,
       constraints: const BoxConstraints(minWidth: 36, minHeight: 36),
+      child: const Icon(Icons.list),
     );
   }
 }
@@ -311,32 +324,32 @@ class DoneWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Padding(
-          padding: const EdgeInsets.all(8.0),
+        const Padding(
+          padding: EdgeInsets.all(8),
           child: Text('DONE !', style: textStyle),
         ),
-        Container(
+        SizedBox(
           width: MediaQuery.of(context).size.width / 1.5,
           child: Column(
             children: <Widget>[
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: <Widget>[
-                  Text('Started at :'),
+                  const Text('Started at :'),
                   Text(DateFormat('HH:mm').format(rush.startDate)),
                 ],
               ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: <Widget>[
-                  Text('Ended at :'),
+                  const Text('Ended at :'),
                   Text(DateFormat('HH:mm').format(rush.endDate)),
                 ],
               ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: <Widget>[
-                  Text('Total :'),
+                  const Text('Total :'),
                   Text(rush.endDate.difference(rush.startDate).pretty()),
                 ],
               ),
@@ -387,11 +400,11 @@ class _WIPWidgetState extends State<WIPWidget> {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: <Widget>[
-        Text(
+        const Text(
           'Currently working\n (theoretically...)',
           style: textStyle,
         ),
-        SizedBox(height: 8),
+        const SizedBox(height: 8),
         Text(
           'Started ${widget.startTime.timeAgo()}',
           style: textStyle.copyWith(fontSize: 18),
@@ -409,7 +422,7 @@ class StartWorkingText extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return RichText(
-      text: TextSpan(
+      text: const TextSpan(
         children: [
           TextSpan(
             text: 'START WORKING ',

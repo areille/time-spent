@@ -20,9 +20,8 @@ class _ClockWidgetState extends State<ClockWidget> {
     color: Colors.white,
     shadows: <Shadow>[
       Shadow(
-        offset: Offset(1.0, 1.0),
-        blurRadius: 2.0,
-        color: Colors.black,
+        offset: Offset(1, 1),
+        blurRadius: 2,
       ),
     ],
   );
@@ -75,7 +74,7 @@ class _ClockWidgetState extends State<ClockWidget> {
             AnimatedOpacity(
               opacity: showColon ? 1 : 0,
               duration: const Duration(milliseconds: 100),
-              child: Text(
+              child: const Text(
                 ':',
                 style: tStyle,
               ),
@@ -88,7 +87,7 @@ class _ClockWidgetState extends State<ClockWidget> {
         ),
         Text(
           DateFormat('dd/MM/yyyy').format(now),
-          style: TextStyle(
+          style: const TextStyle(
             color: Colors.white,
             fontStyle: FontStyle.italic,
             fontSize: 20,
@@ -96,8 +95,7 @@ class _ClockWidgetState extends State<ClockWidget> {
             shadows: <Shadow>[
               Shadow(
                 offset: Offset(0.5, 0.5),
-                blurRadius: 1.0,
-                color: Colors.black,
+                blurRadius: 1,
               ),
             ],
           ),

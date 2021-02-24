@@ -6,11 +6,12 @@ extension DurationExt on Duration {
   /// assert(Duration(minutes: 90).pretty() == '1 h 30 min');
   /// ```
   String pretty() {
-    if (this.inSeconds < 60)
-      return '${this.inSeconds} s';
-    else if (this.inMinutes < 60)
-      return '${this.inMinutes} min';
-    else
-      return '${this.inHours} h ${this.inMinutes.remainder(60)} min';
+    if (inSeconds < 60) {
+      return '$inSeconds s';
+    } else if (inMinutes < 60) {
+      return '$inMinutes min';
+    } else {
+      return '$inHours h ${inMinutes.remainder(60)} min';
+    }
   }
 }

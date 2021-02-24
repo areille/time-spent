@@ -6,25 +6,24 @@ import 'package:provider/provider.dart';
 import 'data/db/database.dart';
 import 'screens/home.dart';
 import 'services/bloc/work_bloc.dart';
-import 'services/dao/rushes_dao.dart';
 
 void main() {
   // debugPaintSizeEnabled = true;
   runApp(
-    Provider<Database>(
-      create: (context) => Database(),
+    Provider<DB>(
+      create: (context) => DB(),
       dispose: (_, db) => db.close(),
       child: BlocProvider<WorkBloc>(
-        child: App(),
-        create: (context) => WorkBloc(
-          rushesDao: RushesDao(Provider.of<Database>(context, listen: false)),
-        ),
+        create: (context) => WorkBloc(context: context),
+        child: const App(),
       ),
     ),
   );
 }
 
 class App extends StatelessWidget {
+  const App({Key key}) : super(key: key);
+
   static const style = TextStyle(
     fontWeight: FontWeight.bold,
     fontSize: 24,
@@ -37,9 +36,9 @@ class App extends StatelessWidget {
       title: 'Time Spent',
       theme: ThemeData(
         primarySwatch: Colors.blue,
-        textTheme: TextTheme(body1: style),
+        textTheme: const TextTheme(bodyText2: style),
       ),
-      home: HomePage(),
+      home: const HomePage(),
     );
   }
 }

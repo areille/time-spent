@@ -1,9 +1,11 @@
 import 'dart:io';
 
+import 'package:moor/ffi.dart';
 import 'package:moor/moor.dart';
-import 'package:moor_ffi/moor_ffi.dart';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
+
+import '../../services/dao/rushes_dao.dart';
 
 part 'database.g.dart';
 
@@ -29,9 +31,17 @@ LazyDatabase get _openConnection {
   });
 }
 
-@UseMoor(tables: [Rushes, Projects])
-class Database extends _$Database {
-  Database() : super(_openConnection);
+@UseMoor(
+  tables: [
+    Rushes,
+    Projects,
+  ],
+  daos: [
+    RushesDao,
+  ],
+)
+class DB extends _$DB {
+  DB() : super(_openConnection);
 
   @override
   int get schemaVersion => 1;

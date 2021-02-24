@@ -15,28 +15,29 @@ extension DateTimeExt on DateTime {
     final num years = days / 365;
 
     String result;
-    if (seconds < 45)
+    if (seconds < 45) {
       result = 'less than a minute ago';
-    else if (seconds < 90)
+    } else if (seconds < 90) {
       result = 'one minute ago';
-    else if (minutes < 45)
+    } else if (minutes < 45) {
       result = '${minutes.round()}min ago';
-    else if (minutes < 90)
+    } else if (minutes < 90) {
       result = 'one hour ago';
-    else if (hours < 24)
+    } else if (hours < 24) {
       result = '${hours.round()}h ago';
-    else if (hours < 48)
+    } else if (hours < 48) {
       result = 'one day ago';
-    else if (days < 30)
+    } else if (days < 30) {
       result = '${days.round()} days ago';
-    else if (days < 60)
+    } else if (days < 60) {
       result = 'one month ago';
-    else if (days < 365)
+    } else if (days < 365) {
       result = '${months.round()} months ago';
-    else if (years < 2)
+    } else if (years < 2) {
       result = 'one year ago';
-    else
+    } else {
       result = '${years.round()} years ago';
+    }
     return result;
   }
 }

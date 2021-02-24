@@ -1,17 +1,17 @@
 import 'package:flutter/material.dart';
 
-Future<bool> deleteDialog(context) => showDialog(
+Future<bool> deleteDialog(BuildContext context) => showDialog<bool>(
       context: context,
       child: AlertDialog(
-        content: Text('Delete this input ?'),
+        content: const Text('Delete this input ?'),
         actions: <Widget>[
           FlatButton(
-            child: Text('CANCEL'),
             onPressed: () => Navigator.pop(context, false),
+            child: const Text('CANCEL'),
           ),
           FlatButton(
-            child: Text('YES'),
             onPressed: () => Navigator.pop(context, true),
+            child: const Text('YES'),
           ),
         ],
       ),

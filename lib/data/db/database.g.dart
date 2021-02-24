@@ -28,6 +28,39 @@ class Rush extends DataClass implements Insertable<Rush> {
           intType.mapFromDatabaseResponse(data['${effectivePrefix}project_id']),
     );
   }
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (!nullToAbsent || id != null) {
+      map['id'] = Variable<int>(id);
+    }
+    if (!nullToAbsent || startDate != null) {
+      map['start_date'] = Variable<DateTime>(startDate);
+    }
+    if (!nullToAbsent || endDate != null) {
+      map['end_date'] = Variable<DateTime>(endDate);
+    }
+    if (!nullToAbsent || projectId != null) {
+      map['project_id'] = Variable<int>(projectId);
+    }
+    return map;
+  }
+
+  RushesCompanion toCompanion(bool nullToAbsent) {
+    return RushesCompanion(
+      id: id == null && nullToAbsent ? const Value.absent() : Value(id),
+      startDate: startDate == null && nullToAbsent
+          ? const Value.absent()
+          : Value(startDate),
+      endDate: endDate == null && nullToAbsent
+          ? const Value.absent()
+          : Value(endDate),
+      projectId: projectId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(projectId),
+    );
+  }
+
   factory Rush.fromJson(Map<String, dynamic> json,
       {ValueSerializer serializer}) {
     serializer ??= moorRuntimeOptions.defaultSerializer;
@@ -47,22 +80,6 @@ class Rush extends DataClass implements Insertable<Rush> {
       'endDate': serializer.toJson<DateTime>(endDate),
       'projectId': serializer.toJson<int>(projectId),
     };
-  }
-
-  @override
-  RushesCompanion createCompanion(bool nullToAbsent) {
-    return RushesCompanion(
-      id: id == null && nullToAbsent ? const Value.absent() : Value(id),
-      startDate: startDate == null && nullToAbsent
-          ? const Value.absent()
-          : Value(startDate),
-      endDate: endDate == null && nullToAbsent
-          ? const Value.absent()
-          : Value(endDate),
-      projectId: projectId == null && nullToAbsent
-          ? const Value.absent()
-          : Value(projectId),
-    );
   }
 
   Rush copyWith(
@@ -114,6 +131,20 @@ class RushesCompanion extends UpdateCompanion<Rush> {
     this.endDate = const Value.absent(),
     this.projectId = const Value.absent(),
   });
+  static Insertable<Rush> custom({
+    Expression<int> id,
+    Expression<DateTime> startDate,
+    Expression<DateTime> endDate,
+    Expression<int> projectId,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (startDate != null) 'start_date': startDate,
+      if (endDate != null) 'end_date': endDate,
+      if (projectId != null) 'project_id': projectId,
+    });
+  }
+
   RushesCompanion copyWith(
       {Value<int> id,
       Value<DateTime> startDate,
@@ -125,6 +156,35 @@ class RushesCompanion extends UpdateCompanion<Rush> {
       endDate: endDate ?? this.endDate,
       projectId: projectId ?? this.projectId,
     );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (startDate.present) {
+      map['start_date'] = Variable<DateTime>(startDate.value);
+    }
+    if (endDate.present) {
+      map['end_date'] = Variable<DateTime>(endDate.value);
+    }
+    if (projectId.present) {
+      map['project_id'] = Variable<int>(projectId.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('RushesCompanion(')
+          ..write('id: $id, ')
+          ..write('startDate: $startDate, ')
+          ..write('endDate: $endDate, ')
+          ..write('projectId: $projectId')
+          ..write(')'))
+        .toString();
   }
 }
 
@@ -186,23 +246,24 @@ class $RushesTable extends Rushes with TableInfo<$RushesTable, Rush> {
   @override
   final String actualTableName = 'rushes';
   @override
-  VerificationContext validateIntegrity(RushesCompanion d,
+  VerificationContext validateIntegrity(Insertable<Rush> instance,
       {bool isInserting = false}) {
     final context = VerificationContext();
-    if (d.id.present) {
-      context.handle(_idMeta, id.isAcceptableValue(d.id.value, _idMeta));
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id'], _idMeta));
     }
-    if (d.startDate.present) {
+    if (data.containsKey('start_date')) {
       context.handle(_startDateMeta,
-          startDate.isAcceptableValue(d.startDate.value, _startDateMeta));
+          startDate.isAcceptableOrUnknown(data['start_date'], _startDateMeta));
     }
-    if (d.endDate.present) {
+    if (data.containsKey('end_date')) {
       context.handle(_endDateMeta,
-          endDate.isAcceptableValue(d.endDate.value, _endDateMeta));
+          endDate.isAcceptableOrUnknown(data['end_date'], _endDateMeta));
     }
-    if (d.projectId.present) {
+    if (data.containsKey('project_id')) {
       context.handle(_projectIdMeta,
-          projectId.isAcceptableValue(d.projectId.value, _projectIdMeta));
+          projectId.isAcceptableOrUnknown(data['project_id'], _projectIdMeta));
     }
     return context;
   }
@@ -213,24 +274,6 @@ class $RushesTable extends Rushes with TableInfo<$RushesTable, Rush> {
   Rush map(Map<String, dynamic> data, {String tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : null;
     return Rush.fromData(data, _db, prefix: effectivePrefix);
-  }
-
-  @override
-  Map<String, Variable> entityToSql(RushesCompanion d) {
-    final map = <String, Variable>{};
-    if (d.id.present) {
-      map['id'] = Variable<int, IntType>(d.id.value);
-    }
-    if (d.startDate.present) {
-      map['start_date'] = Variable<DateTime, DateTimeType>(d.startDate.value);
-    }
-    if (d.endDate.present) {
-      map['end_date'] = Variable<DateTime, DateTimeType>(d.endDate.value);
-    }
-    if (d.projectId.present) {
-      map['project_id'] = Variable<int, IntType>(d.projectId.value);
-    }
-    return map;
   }
 
   @override
@@ -253,6 +296,25 @@ class Project extends DataClass implements Insertable<Project> {
       name: stringType.mapFromDatabaseResponse(data['${effectivePrefix}name']),
     );
   }
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (!nullToAbsent || id != null) {
+      map['id'] = Variable<int>(id);
+    }
+    if (!nullToAbsent || name != null) {
+      map['name'] = Variable<String>(name);
+    }
+    return map;
+  }
+
+  ProjectsCompanion toCompanion(bool nullToAbsent) {
+    return ProjectsCompanion(
+      id: id == null && nullToAbsent ? const Value.absent() : Value(id),
+      name: name == null && nullToAbsent ? const Value.absent() : Value(name),
+    );
+  }
+
   factory Project.fromJson(Map<String, dynamic> json,
       {ValueSerializer serializer}) {
     serializer ??= moorRuntimeOptions.defaultSerializer;
@@ -268,14 +330,6 @@ class Project extends DataClass implements Insertable<Project> {
       'id': serializer.toJson<int>(id),
       'name': serializer.toJson<String>(name),
     };
-  }
-
-  @override
-  ProjectsCompanion createCompanion(bool nullToAbsent) {
-    return ProjectsCompanion(
-      id: id == null && nullToAbsent ? const Value.absent() : Value(id),
-      name: name == null && nullToAbsent ? const Value.absent() : Value(name),
-    );
   }
 
   Project copyWith({int id, String name}) => Project(
@@ -310,11 +364,42 @@ class ProjectsCompanion extends UpdateCompanion<Project> {
     this.id = const Value.absent(),
     @required String name,
   }) : name = Value(name);
+  static Insertable<Project> custom({
+    Expression<int> id,
+    Expression<String> name,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (name != null) 'name': name,
+    });
+  }
+
   ProjectsCompanion copyWith({Value<int> id, Value<String> name}) {
     return ProjectsCompanion(
       id: id ?? this.id,
       name: name ?? this.name,
     );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (name.present) {
+      map['name'] = Variable<String>(name.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ProjectsCompanion(')
+          ..write('id: $id, ')
+          ..write('name: $name')
+          ..write(')'))
+        .toString();
   }
 }
 
@@ -352,15 +437,16 @@ class $ProjectsTable extends Projects with TableInfo<$ProjectsTable, Project> {
   @override
   final String actualTableName = 'projects';
   @override
-  VerificationContext validateIntegrity(ProjectsCompanion d,
+  VerificationContext validateIntegrity(Insertable<Project> instance,
       {bool isInserting = false}) {
     final context = VerificationContext();
-    if (d.id.present) {
-      context.handle(_idMeta, id.isAcceptableValue(d.id.value, _idMeta));
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id'], _idMeta));
     }
-    if (d.name.present) {
+    if (data.containsKey('name')) {
       context.handle(
-          _nameMeta, name.isAcceptableValue(d.name.value, _nameMeta));
+          _nameMeta, name.isAcceptableOrUnknown(data['name'], _nameMeta));
     } else if (isInserting) {
       context.missing(_nameMeta);
     }
@@ -376,29 +462,19 @@ class $ProjectsTable extends Projects with TableInfo<$ProjectsTable, Project> {
   }
 
   @override
-  Map<String, Variable> entityToSql(ProjectsCompanion d) {
-    final map = <String, Variable>{};
-    if (d.id.present) {
-      map['id'] = Variable<int, IntType>(d.id.value);
-    }
-    if (d.name.present) {
-      map['name'] = Variable<String, StringType>(d.name.value);
-    }
-    return map;
-  }
-
-  @override
   $ProjectsTable createAlias(String alias) {
     return $ProjectsTable(_db, alias);
   }
 }
 
-abstract class _$Database extends GeneratedDatabase {
-  _$Database(QueryExecutor e) : super(SqlTypeSystem.defaultInstance, e);
+abstract class _$DB extends GeneratedDatabase {
+  _$DB(QueryExecutor e) : super(SqlTypeSystem.defaultInstance, e);
   $RushesTable _rushes;
   $RushesTable get rushes => _rushes ??= $RushesTable(this);
   $ProjectsTable _projects;
   $ProjectsTable get projects => _projects ??= $ProjectsTable(this);
+  RushesDao _rushesDao;
+  RushesDao get rushesDao => _rushesDao ??= RushesDao(this as DB);
   @override
   Iterable<TableInfo> get allTables => allSchemaEntities.whereType<TableInfo>();
   @override
