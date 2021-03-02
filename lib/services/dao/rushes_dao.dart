@@ -19,11 +19,39 @@ class RushesDao extends DatabaseAccessor<DB> with _$RushesDaoMixin {
 
   Future<List<Rush>> get getRushes => select(rushes).get();
 
+  Future<List<Rush>> getProjectRushes(int projectId) =>
+      (select(rushes)..where((rush) => rush.projectId.equals(projectId))).get();
+
   Stream<List<Rush>> get watchRushes => select(rushes).watch();
+
+  Stream<List<Rush>> watchProjectRushes(int projectId) =>
+      (select(rushes)..where((rush) => rush.projectId.equals(projectId)))
+          .watch();
+
+  Stream<Map<DateTime, List<Rush>>> watchProjectRushesByDate(
+    int projectId,
+  ) async* {
+    await for (final event in watchProjectRushes(projectId)) {
+      final dailySortedRushes = <DateTime, List<Rush>>{};
+      for (final rush in event) {
+        final day = DateTime(
+          rush.startDate.year,
+          rush.startDate.month,
+          rush.startDate.day,
+        );
+        if (dailySortedRushes.containsKey(day)) {
+          dailySortedRushes[day].add(rush);
+        } else {
+          dailySortedRushes[day] = [rush];
+        }
+      }
+      yield dailySortedRushes;
+    }
+  }
 
   Stream<Map<String, List<Rush>>> get watchMonthlySortedRushes async* {
     await for (final event in watchRushes) {
-      final Map<String, List<Rush>> mSortedRushes = {};
+      final mSortedRushes = <String, List<Rush>>{};
       for (final rush in event) {
         final month = DateFormat('MMMM yyyy').format(rush.startDate);
         if (mSortedRushes.containsKey(month)) {

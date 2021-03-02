@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../data/db/database.dart';
 import '../widgets/snackbars.dart';
 
+/// This page allows to create a project
 class AddProject extends StatefulWidget {
   const AddProject({Key key}) : super(key: key);
 

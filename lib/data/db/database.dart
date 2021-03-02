@@ -7,16 +7,18 @@ import 'package:path_provider/path_provider.dart';
 
 import '../../services/dao/projects_dao.dart';
 import '../../services/dao/rushes_dao.dart';
+import '../../utils/extensions.dart';
 
 part 'database.g.dart';
 
 @DataClassName('Rush')
 class Rushes extends Table {
   IntColumn get id => integer().autoIncrement()();
-  DateTimeColumn get startDate => dateTime().nullable()();
-  DateTimeColumn get endDate => dateTime().nullable()();
+  DateTimeColumn get startDate => dateTime()();
+  DateTimeColumn get endDate => dateTime()();
   IntColumn get projectId => integer()();
   BoolColumn get billable => boolean().withDefault(const Constant(true))();
+  TextColumn get description => text().nullable()();
 }
 
 class Projects extends Table {
@@ -62,4 +64,11 @@ class DB extends _$DB {
           await m.createAll();
         },
       );
+}
+
+extension RushExtension on Rush {
+  Duration get duration => endDate.difference(startDate);
+
+  String get prettyInterval =>
+      '${startDate.prettyHour()} - ${endDate.prettyHour()}';
 }

@@ -5,10 +5,13 @@ import '../data/db/database.dart';
 import '../utils/delete_dialog.dart';
 import '../widgets/snackbars.dart';
 
+/// This page allows to change project name, billing rate, and deletion
 class ProjectSettings extends StatefulWidget {
-  const ProjectSettings({Key key, @required this.id}) : super(key: key);
+  const ProjectSettings({Key key, @required this.project})
+      : assert(project != null, 'Project should not be null'),
+        super(key: key);
 
-  final int id;
+  final Project project;
 
   @override
   _ProjectSettingsState createState() => _ProjectSettingsState();
@@ -17,12 +20,13 @@ class ProjectSettings extends StatefulWidget {
 class _ProjectSettingsState extends State<ProjectSettings> {
   TextEditingController projectNameController;
   TextEditingController billRateController;
-  Project project;
 
   @override
   void initState() {
     super.initState();
-    retrieveProject();
+    projectNameController = TextEditingController(text: widget.project.name);
+    billRateController =
+        TextEditingController(text: widget.project.hourlyBillRate?.toString());
   }
 
   @override
@@ -32,23 +36,13 @@ class _ProjectSettingsState extends State<ProjectSettings> {
     super.dispose();
   }
 
-  Future<void> retrieveProject() async {
-    final _project = await context.read<DB>().projectsDao.getById(widget.id);
-    setState(() {
-      project = _project;
-      projectNameController = TextEditingController(text: project.name);
-      billRateController =
-          TextEditingController(text: project.hourlyBillRate?.toString());
-    });
-  }
-
   Future<void> updateProject() async {
     final name = projectNameController.text;
     final hourlyBillRate = double.tryParse(billRateController.text);
     await context
         .read<DB>()
         .projectsDao
-        .updateProject(widget.id, name, hourlyBillRate);
+        .updateProject(widget.project.id, name, hourlyBillRate);
     Navigator.pop(context);
     successSnackBar(context, 'Project updated');
   }
@@ -60,7 +54,7 @@ class _ProjectSettingsState extends State<ProjectSettings> {
       'DELETE',
     );
     if (confirm == true) {
-      await context.read<DB>().projectsDao.deleteProject(project);
+      await context.read<DB>().projectsDao.deleteProject(widget.project);
       Navigator.pop(context);
       successSnackBar(context, 'Project deleted');
     }
@@ -68,59 +62,57 @@ class _ProjectSettingsState extends State<ProjectSettings> {
 
   @override
   Widget build(BuildContext context) {
-    return project == null
-        ? const Scaffold()
-        : Scaffold(
-            appBar: AppBar(title: Text(project.name)),
-            body: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                children: [
-                  TextField(
-                    controller: projectNameController,
-                    keyboardType: TextInputType.text,
-                    decoration: InputDecoration(
-                      contentPadding: const EdgeInsets.all(8),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      labelText: 'Project Name',
-                    ),
-                  ),
-                  const SizedBox(height: 32),
-                  TextField(
-                    controller: billRateController,
-                    keyboardType:
-                        const TextInputType.numberWithOptions(decimal: true),
-                    decoration: InputDecoration(
-                      contentPadding: const EdgeInsets.all(8),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      labelText: 'Hourly bill rate',
-                    ),
-                  ),
-                  const SizedBox(height: 32),
-                  RaisedButton(
-                    onPressed: updateProject,
-                    color: Colors.blueGrey,
-                    child: const Text(
-                      'SAVE',
-                      style: TextStyle(color: Colors.white),
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  RaisedButton(
-                    onPressed: deleteProject,
-                    color: Colors.red,
-                    child: const Text(
-                      'DELETE',
-                      style: TextStyle(color: Colors.white),
-                    ),
-                  ),
-                ],
+    return Scaffold(
+      appBar: AppBar(title: Text(widget.project.name)),
+      body: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          children: [
+            TextField(
+              controller: projectNameController,
+              keyboardType: TextInputType.text,
+              decoration: InputDecoration(
+                contentPadding: const EdgeInsets.all(8),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                labelText: 'Project Name',
               ),
             ),
-          );
+            const SizedBox(height: 32),
+            TextField(
+              controller: billRateController,
+              keyboardType:
+                  const TextInputType.numberWithOptions(decimal: true),
+              decoration: InputDecoration(
+                contentPadding: const EdgeInsets.all(8),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                labelText: 'Hourly bill rate',
+              ),
+            ),
+            const SizedBox(height: 32),
+            RaisedButton(
+              onPressed: updateProject,
+              color: Colors.blueGrey,
+              child: const Text(
+                'SAVE',
+                style: TextStyle(color: Colors.white),
+              ),
+            ),
+            const SizedBox(height: 16),
+            RaisedButton(
+              onPressed: deleteProject,
+              color: Colors.red,
+              child: const Text(
+                'DELETE',
+                style: TextStyle(color: Colors.white),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }

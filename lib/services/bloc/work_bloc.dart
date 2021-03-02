@@ -23,9 +23,10 @@ class WorkBloc extends Bloc<WorkEvent, WorkState> {
       yield InProgress(event.time);
     }
     if (event is Stopped) {
-      rush.copyWith(endDate: Value(event.time));
+      rush = rush.copyWith(endDate: Value(event.time));
       await context.read<DB>().rushesDao.saveRush(rush);
-      yield Done(rush);
+      yield Ready();
+      // yield Done(rush);
     }
   }
 }
@@ -71,11 +72,11 @@ class InProgress extends WorkState {
   List<Object> get props => [startTime];
 }
 
-class Done extends WorkState {
-  Done(this.rush);
+// class Done extends WorkState {
+//   Done(this.rush);
 
-  final RushesCompanion rush;
+//   final RushesCompanion rush;
 
-  @override
-  List<Object> get props => [rush];
-}
+//   @override
+//   List<Object> get props => [rush];
+// }

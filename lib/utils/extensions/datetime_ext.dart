@@ -1,3 +1,5 @@
+import 'package:intl/intl.dart';
+
 extension DateTimeExt on DateTime {
   /// Returns a string representation of time elapsed from [DateTime] to now.
   ///
@@ -40,4 +42,7 @@ extension DateTimeExt on DateTime {
     }
     return result;
   }
+
+  /// Formats a [DateTime] to hour format : HH:mm
+  String prettyHour() => DateFormat.Hm().format(this);
 }
